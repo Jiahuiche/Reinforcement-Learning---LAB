@@ -24,7 +24,25 @@ print('Training...')
 for episode in range(1, 10001):
 
     # TODO: Implement the SARSA algorithm
- 
+    # Pagina 64
+    state = env.reset() 
+    done = None
+    if np.random.rand() < epsilon:
+        action = env.action_space.sample()
+    else:
+        action = np.argmax(Q[state])
+    while done != True:
+        next_state, reward, done, _, info = env.step(action) #next_state, reward, terminated (bool), truncated (false en nostre cas perquè no tenim horitzó), més info
+        if np.random.rand() < epsilon:
+            next_action = env.action_space.sample()
+        else:
+            next_action = np.argmax(Q[next_state])
+        td_target = reward + gamma * (1-done) * Q[next_state][next_action] #(1-done) per evitar que si ja estem en estat terminal no sumi res
+        td_delta = td_target - Q[state][action]
+        Q[state][action] += lr * td_delta
+        state = next_state
+        action = next_action
+        G += reward
  
 
     # End TODO
@@ -53,7 +71,7 @@ while not state.finished:
     state.iternext()
 
 print_policy(policy,V)
-
+print(policy)
 
 print('Visualizing episodes...')
 # Let's test your policy!
